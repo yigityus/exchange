@@ -19,14 +19,10 @@ public class Conversion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Instant createdDate;
-
     private String source;
     private String target;
     private double amount;
-
+    private double rate;
     private String transactionId;
-
-
 }

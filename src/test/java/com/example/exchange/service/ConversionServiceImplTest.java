@@ -30,8 +30,8 @@ class ConversionServiceImplTest {
     @Test
     void shouldSave() {
         Conversion conversion = new Conversion(0L,
-                Instant.now(), "TRY", "USD",
-                10d, UUID.randomUUID().toString());
+                Instant.now(), "TRY", "USD", 10d,
+                0.3d, UUID.randomUUID().toString());
         conversionService.save(conversion);
     }
 

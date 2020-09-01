@@ -5,6 +5,9 @@ import com.example.exchange.repository.ConversionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.List;
+
 @Service
 public class ConversionServiceImpl implements ConversionService {
 
@@ -18,5 +21,20 @@ public class ConversionServiceImpl implements ConversionService {
     @Override
     public void save(Conversion conversion) {
         conversionRepository.save(conversion);
+    }
+
+    @Override
+    public List<Conversion> findAll() {
+        return conversionRepository.findAll();
+    }
+
+    @Override
+    public List<Conversion> findByTransactionId(String transactionId) {
+        return conversionRepository.findByTransactionId(transactionId);
+    }
+
+    @Override
+    public List<Conversion> findByCreatedDateBetween(Instant start, Instant end) {
+        return conversionRepository.findByCreatedDateBetween(start, end);
     }
 }
