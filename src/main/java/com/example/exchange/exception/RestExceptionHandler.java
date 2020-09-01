@@ -14,8 +14,6 @@ import java.util.Optional;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-   //other exception handlers
-
    @ExceptionHandler({InvalidDateFormatException.class, RequestParamMissingException.class})
    protected ResponseEntity<CustomException> handleRequestParamMissing(
            RuntimeException ex) {
