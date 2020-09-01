@@ -1,6 +1,7 @@
 package com.example.exchange.service;
 
 import com.example.exchange.model.Conversion;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,13 @@ class ConversionServiceImplTest {
 
     @Test
     void shouldSave() {
+
         Conversion conversion = new Conversion(0L,
                 Instant.now(), "TRY", "USD", 10d,
                 0.3d, UUID.randomUUID().toString());
         conversionService.save(conversion);
+
+        Assertions.assertThat(conversionService.findAll().size()).isEqualTo(1);
     }
 
 }

@@ -1,5 +1,7 @@
 package com.example.exchange.controller;
 
+import com.example.exchange.configuration.Constants;
+import com.example.exchange.exception.InvalidDateFormatException;
 import com.example.exchange.exception.RequestParamMissingException;
 import com.example.exchange.model.Conversion;
 import com.example.exchange.repository.ConversionRepository;
@@ -13,7 +15,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.List;
@@ -30,8 +37,7 @@ public class ConvertController {
 
 
     public ConvertController(RateController rateController,
-                             ConversionService conversionService,
-                             ConversionRepository conversionRepository) {
+                             ConversionService conversionService) {
         this.rateController = rateController;
         this.conversionService = conversionService;
     }
@@ -41,19 +47,11 @@ public class ConvertController {
                                        @RequestParam String source, @RequestParam String target) {
         ResponseEntity<Double> convertRate = rateController.rate(source, target);
         double rate = convertRate.getBody().doubleValue();
-        saveConversion(amount, source, target, rate);
-        return ResponseEntity.of(Optional.of(rate * amount));
-    }
 
-    private void saveConversion(double amount, String source, String target, double rate) {
-        Conversion conversion = new Conversion();
-        conversion.setCreatedDate(Instant.now());
-        conversion.setTransactionId(UUID.randomUUID().toString());
-        conversion.setSource(source);
-        conversion.setTarget(target);
-        conversion.setAmount(amount);
-        conversion.setRate(rate);
-        conversionService.save(conversion);
+        Runnable runnable = () -> saveConversion(amount, source, target, rate);
+        runnable.run();
+
+        return ResponseEntity.of(Optional.of(rate * amount));
     }
 
     @GetMapping("/list")
@@ -68,7 +66,27 @@ public class ConvertController {
             return ResponseEntity.of(Optional.of(conversionService.findByTransactionId(transactionId)));
         }
 
-        Instant start = Instant.now().minus(Duration.of(1, ChronoUnit.DAYS));
-        return ResponseEntity.of(Optional.of(conversionService.findByCreatedDateBetween(start, Instant.now())));
+        Instant start;
+        try {
+            LocalDate from = LocalDate.from(Constants.formatter.parse(date));
+            start = from.atStartOfDay().toInstant(ZoneOffset.ofHours(3));
+        } catch (DateTimeParseException e) {
+            throw new InvalidDateFormatException(Instant.now());
+        }
+
+        Instant end = Instant.now().plus(Duration.of(1, ChronoUnit.DAYS));
+        return ResponseEntity.of(Optional.of(conversionService.findByCreatedDateBetween(start, end)));
     }
+
+    private void saveConversion(double amount, String source, String target, double rate) {
+        Conversion conversion = new Conversion();
+        conversion.setCreatedDate(Instant.now());
+        conversion.setTransactionId(UUID.randomUUID().toString());
+        conversion.setSource(source);
+        conversion.setTarget(target);
+        conversion.setAmount(amount);
+        conversion.setRate(rate);
+        conversionService.save(conversion);
+    }
+
 }
