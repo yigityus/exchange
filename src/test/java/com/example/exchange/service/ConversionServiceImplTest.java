@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +29,9 @@ class ConversionServiceImplTest {
 
     @Test
     void shouldSave() {
-        Conversion conversion = new Conversion(0L, Instant.now(), "TRY");
+        Conversion conversion = new Conversion(0L,
+                Instant.now(), "TRY", "USD",
+                10d, UUID.randomUUID().toString());
         conversionService.save(conversion);
     }
 

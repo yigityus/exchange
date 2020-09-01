@@ -22,5 +22,11 @@ public class Conversion {
 
     private Instant createdDate;
 
-    private String name;
+    private String source;
+    private String target;
+    private double amount;
+
+    private String transactionId;
+
+
 }
